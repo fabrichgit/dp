@@ -2,6 +2,10 @@
   "name": "deployment-platform-api",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=16.0.0 <23",
+    "npm": ">=7.0.0"
+  },
   "scripts": {
     "dev": "ts-node-dev --respawn src/index.ts",
     "build": "tsc",
