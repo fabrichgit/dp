@@ -41,7 +41,7 @@ export default class DeploymentService {
       createdAt: new Date(),
       path: deploymentPath,
       status: 'active',
-      url: `${this.baseUrl}/sites/${id}`
+      url: `${this.baseUrl}/~/${id}`
     };
 
     this.deployments.set(id, deployment);
