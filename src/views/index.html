@@ -3,53 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deployment Platform</title>
+    <title>dp</title>
     <script src="https://unpkg.com/htmx.org@1.9.8"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar styles for better aesthetics */
+        iframe::-webkit-scrollbar {
+          width: 8px;
+          background-color: #2d3748;
+        }
+        iframe::-webkit-scrollbar-thumb {
+          background-color: #4a5568;
+          border-radius: 4px;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-4">Deployment Platform</h1>
-        
-        <!-- Upload Form -->
-        <form id="uploadForm" class="mb-8 bg-white p-4 rounded shadow">
-            <div class="mb-4">
-                <label class="block text-sm font-medium mb-2">Project Name</label>
-                <input type="text" name="name" required class="border p-2 w-full rounded">
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium mb-2">Build Files (ZIP)</label>
-                <input type="file" name="build" required accept=".zip" class="border p-2 w-full rounded">
-            </div>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Deploy
-            </button>
-        </form>
-
-        <!-- Deployments List -->
-        <div id="deploymentsList" class="bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-semibold mb-4">Deployments</h2>
-            <div hx-get="/api/deployments" hx-trigger="load, every 5s">
-                Loading deployments...
-            </div>
+<body class="bg-gray-900 min-h-screen text-white">
+    <header class="text-center my-5 text-gray-400 text-sm">
+        Développed by
+        <a href="https://github.com/fabrichgit" target="_blank" class="text-blue-500 hover:underline">
+          Fabrich
+        </a>
+    </header>
+    <div class="container mx-auto p-6">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-blue-500">Deployment Platform</h1>
+        <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+          logout
+        </button>
+      </div>
+  
+      <!-- Upload Form -->
+      <form id="uploadForm" class="mb-8 bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h2 class="text-xl font-semibold text-blue-400 mb-4">+ Add new site</h2>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-300 mb-2">Projet name</label>
+          <input 
+            type="text" 
+            name="name" 
+            required 
+            class="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
         </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-300 mb-2" >Build Files (ZIP)</label>
+          <input 
+            type="file" 
+            name="build" 
+            required 
+            accept=".zip" 
+            class="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+        </div>
+        <button 
+          type="submit" 
+          class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Deploye
+        </button>
+      </form>
+  
+      <!-- Deployments List -->
+      <div id="deploymentsList" class="bg-gray-800 p-6 rounded-lg shadow-lg w-full">
+        <h2 class="text-xl font-semibold text-blue-400 mb-4">Sites</h2>
+        <div class="w-full overflow-x-auto" style="scrollbar-width: thin;">
+        <div 
+            hx-get="/api/deployments" 
+            hx-trigger="load, every 5s" 
+            class="text-gray-400"
+        >
+          loading ...
+        </div>
+        </div>
+      </div>
     </div>
-
+  
+    <!-- Template -->
     <template id="deploymentsTemplate">
-        <table class="min-w-full">
+        <table class="min-w-full text-gray-300 bg-gray-800 rounded-lg overflow-hidden shadow-lg">
             <thead>
-                <tr class="border-b">
-                    <th class="text-left py-2">Name</th>
-                    <th class="text-left py-2">Created</th>
-                    <th class="text-left py-2">Status</th>
-                    <th class="text-left py-2">URL</th>
+                <tr class="bg-gray-700 border-b border-gray-600">
+                <th class="text-left py-3 px-4">Preview</th>
+                <th class="text-left py-3 px-4">name</th>
+                <th class="text-left py-3 px-4">published at</th>
+                <th class="text-left py-3 px-4">statut</th>
+                <th class="text-left py-3 px-4">URL</th>
                 </tr>
             </thead>
             <tbody>
             </tbody>
         </table>
     </template>
-
+    <div id="alertBox" class="fixed w-max h-max top-4 -translate-x-[50%] left-[50%] border bg-transparent inset-0 backdrop-blur-lg bg-white/10 text-white p-4 rounded shadow-lg hidden">
+        Notification
+    </div>
     <script>
         window.addEventListener("DOMContentLoaded", async () => {
             const url = "/auth";
@@ -72,6 +120,15 @@
     </script>
     <script>
 
+        function showNotification(message) {
+            const alertBox = document.getElementById("alertBox");
+            alertBox.classList.remove("hidden");
+            alertBox.innerText = message
+            setTimeout(() => {
+            alertBox.classList.add("hidden");
+            }, 3000);
+        }
+
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -84,18 +141,17 @@
                 
                 if (response.ok) {
                     const deployment = await response.json();
-                    alert(`Deployment successful! Site available at: ${deployment.url}`);
                     e.target.reset();
                     document.querySelector('#deploymentsList div').setAttribute('hx-trigger', 'load');
+                    showNotification(`🍏 deployment successful !`);
                 } else {
-                    alert('Deployment failed');
+                    showNotification("🍎 somethong wrong !");
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                showNotification("🍎 somethong wrong !");
             }
         });
 
-        // Handle deployments list updates
         document.querySelector('#deploymentsList div').addEventListener('htmx:afterSwap', function(evt) {
             const deployments = JSON.parse(evt.detail.xhr.response);
             const template = document.getElementById('deploymentsTemplate');
@@ -106,15 +162,40 @@
                 const row = document.createElement('tr');
                 row.className = 'border-b';
                 row.innerHTML = `
-                    <td class="py-2">${deployment.name}</td>
-                    <td class="py-2">${new Date(deployment.createdAt).toLocaleString()}</td>
-                    <td class="py-2">${deployment.status}</td>
-                    <td class="py-2">
-                        <a href="${deployment.url}" target="_blank" 
-                           class="text-blue-500 hover:text-blue-700">
-                            Visit Site
-                        </a>
+                 <tr class="hover:bg-gray-700 border-b border-gray-600">
+                    <td class="py-3 px-4 relative">
+                        <iframe 
+                        src="${deployment.url}" 
+                        class="w-56 h-24 border border-gray-600 rounded-md"
+                        title="Preview of ${deployment.name}">
+                        </iframe>
+
+                        <div 
+                        class="absolute inset-0 cursor-pointer"
+                        onclick="window.open('${deployment.url}', '_blank')"
+                        title="Click to visit ${deployment.name}">
+                        </div>
+                        </td>
+                    <td class="py-3 px-4">${deployment.name}</td>
+                    <td class="py-3 px-4">${new Date(deployment.createdAt).toLocaleString()}</td>
+                    <td class="py-3 px-4">
+                    <span class="px-2 py-1 rounded text-white ${
+                        deployment.status === 'Success' 
+                        ? 'bg-green-500' 
+                        : deployment.status === 'In Progress' 
+                        ? 'bg-yellow-500' 
+                        : 'bg-red-500'
+                    }">
+                        ${deployment.status}
+                    </span>
                     </td>
+                    <td class="py-3 px-4">
+                    <a href="${deployment.url}" target="_blank" 
+                        class="text-blue-500 hover:text-blue-700">
+                        Visit Site
+                    </a>
+                    </td>
+                </tr>
                 `;
                 tbody.appendChild(row);
             });

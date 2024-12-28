@@ -15,7 +15,6 @@ export const guardToken = (req: Request, res: Response, next: NextFunction) => {
     if (token) {
         try {
             const decoded = verifyToken(token);
-            console.log(decoded);
             res.status(202).send()
         } catch (error) {
             res.status(400).send()
