@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>dp</title>
+    <link rel="icon" type="image/png" href="/ghost.png" />
     <script src="https://unpkg.com/htmx.org@1.9.8"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -28,8 +29,11 @@
     <div class="container mx-auto p-6">
       <!-- Header -->
       <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-blue-500">Deployment Platform</h1>
-        <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+        <div class="flex items-center gap-2">
+            <img src="/ghost.png" alt="" class="w-9 h-9">
+            <h1 class="text-3xl font-bold text-blue-500">dp</h1>
+        </div>
+        <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
           logout
         </button>
       </div>
@@ -127,6 +131,11 @@
             setTimeout(() => {
             alertBox.classList.add("hidden");
             }, 3000);
+        }
+
+        function logout(){
+            localStorage.removeItem("billet")
+            window.location.reload()
         }
 
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
