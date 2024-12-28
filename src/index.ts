@@ -7,6 +7,7 @@ import { injectHeaderScript } from './middleware/injectScript';
 import fs from 'fs';
 import dotenv from 'dotenv';
 import { protectRoute } from './middleware/protected';
+import { guardToken } from './middleware/guardtoken';
 
 dotenv.config();
 
@@ -66,6 +67,8 @@ app.use('/api/deployments', deploymentRoutes);
 app.get('/app', (_req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
+
+app.get("/auth", guardToken)
 
 app.get('/', (_req, res) => {
   res.json({ status: 'ok' });

@@ -8,6 +8,7 @@ const SCRIPT_CONTENT = `
     options.headers = {
       ...options.headers,
       'Referer': window.location.href,
+      'Authorization': "Bearer "+localStorage.getItem('billet')
       'X-Request-URL': window.location.href
     };
     return originalFetch(url, options);

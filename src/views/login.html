@@ -7,7 +7,7 @@
 </head>
 <body>
   <h1>Connexion</h1>
-  <form action="/protected" method="get">
+  <form >
     <label for="username">Nom d'utilisateur :</label>
     <input type="text" id="username" name="username" required>
     <br>
@@ -16,5 +16,33 @@
     <br>
     <button type="submit">Se connecter</button>
   </form>
+
+
+  <script>
+    const form = document.querySelector('form');
+    form.addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const formm = new FormData(form)
+      const [username, password] = [
+        formm.get("username"),
+        formm.get("password")
+      ]
+
+      // Add your form submission logic here
+      const data = await fetch(`/protected?username=${username}&&password=${password}`, {
+        method: 'GET',
+      })
+
+      if(data.ok){
+        alert("success")
+        const dt = await data.json()
+        localStorage.setItem("billet", dt.token)
+        return
+      }
+      if(data.status === 400){
+        alert("error")
+      }
+    });
+  </script>
 </body>
 </html>

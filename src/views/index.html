@@ -51,6 +51,27 @@
     </template>
 
     <script>
+        window.addEventListener("DOMContentLoaded", async () => {
+            const url = "/auth";
+            const token = `Bearer ${localStorage.getItem("billet")}`
+
+            const data = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Authorization": token,
+                    "Content-Type": "application/json",
+                },
+            })
+            if(data.ok){
+                return
+            }else{
+                localStorage.removeItem("billet")
+                window.location.href = "/login"
+            }
+        })
+    </script>
+    <script>
+
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
