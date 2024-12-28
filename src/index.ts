@@ -60,53 +60,57 @@ app.get('/~/:id*', (_req, res) => {
   });
 });
 
-// Routes
 app.use('/api/deployments', deploymentRoutes);
 
-// Main page
-app.get('/app', protectRoute, (_req, res) => {
+
+app.get('/app', (_req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
-// Health check
 app.get('/', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.get('*', (req, res) => {
-  const redr = req.headers["referer"]?.split("/")
-  const originalUrl = req.originalUrl
-  if(!redr || !originalUrl){
-    res.redirect(originalUrl+"/")
-    return
-  }
+app.get('/protected', protectRoute, (req, res) => {
+  res.send('Bienvenue dans la zone protégée!');
+});
 
-  const sub = redr.join("").replace("/~", "")
+app.get('*', (req, res, next) => {
+  try {
+    const redr = req.headers["referer"]?.split("/")
+    const originalUrl = req.originalUrl
+    if(!redr || !originalUrl){
+      res.redirect(originalUrl+"/")
+      return
+    }
   
-  const basePath = path.join(__dirname, '../uploads', redr?.at(4)!);
-
-  // Lire les fichiers et dossiers dans le chemin
-  fs.readdir(basePath, { withFileTypes: true }, (err, files) => {
-      if (err) {
-          res.status(404).send('Chemin introuvable');
-          return;
-      }
-
-      // Trouver le premier dossier
-      const firstDirectory = files.find(file => file.isDirectory());
-      if (!firstDirectory) {
-          res.status(404).send('Aucun dossier trouvé');
-          return;
-      }
-
-      const folderPath = path.join(basePath, firstDirectory.name);
-      // res.send({redr, originalUrl, folderPath})
-      const final = `/${redr?.at(3)}/${redr?.at(4)}/${folderPath.split("/").reverse().at(0)}${originalUrl}`
-      res.redirect(final)
-      // res.sendFile(folderPath+"/");
-  });
-
-  // res.send({redr, originalUrl})
+    const sub = redr.join("").replace("/~", "")
+    
+    const basePath = path.join(__dirname, '../uploads', redr?.at(4)!);
+  
+    // Lire les fichiers et dossiers dans le chemin
+    fs.readdir(basePath, { withFileTypes: true }, (err, files) => {
+        if (err) {
+            res.status(404).send('Chemin introuvable');
+            return;
+        }
+  
+        // Trouver le premier dossier
+        const firstDirectory = files.find(file => file.isDirectory());
+        if (!firstDirectory) {
+            res.status(404).send('Aucun dossier trouvé');
+            return;
+        }
+  
+        const folderPath = path.join(basePath, firstDirectory.name);
+        // res.send({redr, originalUrl, folderPath})
+        const final = `/${redr?.at(3)}/${redr?.at(4)}/${folderPath.split("/").reverse().at(0)}${originalUrl}`
+        res.redirect(final)
+        // res.sendFile(folderPath+"/");
+    });
+  } catch (error) {
+    next(error)
+  }
 });
 
 app.listen(PORT, () => {
